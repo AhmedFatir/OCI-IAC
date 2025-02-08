@@ -25,9 +25,7 @@ WORKDIR /root/resources
 
 CMD ["tail", "-f", "/dev/null"]
 
-# RUN gpg --no-default-keyring --keyring /usr/share/keyrings/hashicorp-archive-keyring.gpg --fingerprint
 # oci setup repair-file-permissions --file /root/.oci/config
 # oci setup repair-file-permissions --file /root/resources/afatir.pem
 
-# ssh-keygen -t rsa -b 2048
-# oci compute instance list-vnics --instance-id <instance-id> | jq -r '.data[]."public-ip"'
+# ssh-keygen -t rsa -b 2048 -f ~/.ssh/id_rsa -N "" -q
