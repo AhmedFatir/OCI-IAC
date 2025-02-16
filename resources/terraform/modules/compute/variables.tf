@@ -24,10 +24,3 @@ variable "public_subnet_id" {
     error_message = "You must provide a valid OCID for the public subnet"
   }
 }
-
-variable "default_image_id" {
-  description = "Fallback image id when no matching image is found"
-  type        = string
-  default     = ""
-}
-

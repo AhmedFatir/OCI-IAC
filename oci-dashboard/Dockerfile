@@ -21,11 +21,12 @@ wget -O- https://apt.releases.hashicorp.com/gpg | gpg --dearmor | tee /usr/share
 echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/hashicorp.list; \
 apt-get update && apt-get -y install terraform
 
+# Set up SSH key and OCI CLI Autocomplete
+RUN ssh-keygen -t rsa -b 2048 -f ~/.ssh/id_rsa -N "" -q;\
+oci setup autocomplete > /dev/null 2>&1
+
 WORKDIR /root/resources
 
 CMD ["tail", "-f", "/dev/null"]
 
-# oci setup repair-file-permissions --file /root/.oci/config
-# oci setup repair-file-permissions --file /root/resources/afatir.pem
-
-# ssh-keygen -t rsa -b 2048 -f ~/.ssh/id_rsa -N "" -q
+# oci setup repair-file-permissions --file /root/.oci/config && oci setup repair-file-permissions --file /root/resources/afatir.pem

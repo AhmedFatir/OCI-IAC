@@ -23,6 +23,7 @@ resource "oci_core_security_list" "public_sl" {
   display_name   = "public-sl"
 
   ingress_security_rules {
+    description = "Allow TCP traffic for SSH"
     protocol    = "6"
     source      = "0.0.0.0/0"
     source_type = "CIDR_BLOCK"
@@ -33,6 +34,7 @@ resource "oci_core_security_list" "public_sl" {
   }
 
   ingress_security_rules {
+    description = "Allow HTTP traffic for Jenkins"
     protocol    = "6"
     source      = "0.0.0.0/0"
     source_type = "CIDR_BLOCK"
@@ -42,17 +44,8 @@ resource "oci_core_security_list" "public_sl" {
     }
   }
 
-  ingress_security_rules {
-    protocol    = "6"
-    source      = "0.0.0.0/0"
-    source_type = "CIDR_BLOCK"
-    tcp_options {
-      min = 50000
-      max = 50000
-    }
-  }
-
   egress_security_rules {
+    description      = "Allow all outbound traffic"
     destination      = "0.0.0.0/0"
     destination_type = "CIDR_BLOCK"
     protocol         = "ALL"

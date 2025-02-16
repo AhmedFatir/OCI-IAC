@@ -1,15 +1,14 @@
-# data "oci_core_images" "images1" {
-#   compartment_id           = var.compartment_id
-#   operating_system         = "Debian"
-#   operating_system_version = "10"
-#   shape                    = "VM.Standard2.1"
-# }
-
 data "oci_core_images" "images1" {
-  compartment_id           = oci_identity_compartment.DevOps.id
-  operating_system         = "Oracle Linux"
-  operating_system_version = "7.9"
-  shape                    = "VM.Standard2.1"
+  compartment_id           = var.compartment_id
+  operating_system         = "Canonical Ubuntu"
+  operating_system_version = "20.04"
+  sort_by                  = "TIMECREATED"
+  sort_order               = "DESC"
+  state                    = "AVAILABLE"
+  filter {
+    name   = "operating_system"
+    values = ["Canonical Ubuntu"]
+  }
 }
 
 data "oci_identity_availability_domains" "ads" {
@@ -19,7 +18,12 @@ data "oci_identity_availability_domains" "ads" {
 resource "oci_core_instance" "instance1" {
   compartment_id      = var.compartment_id
   availability_domain = data.oci_identity_availability_domains.ads.availability_domains[0].name
-  shape               = "VM.Standard2.1"
+  shape               = "VM.Standard.E3.Flex"
+
+  shape_config {
+    memory_in_gbs = 16
+    ocpus         = 1
+  }
 
   source_details {
     source_type = "image"
@@ -34,7 +38,7 @@ resource "oci_core_instance" "instance1" {
 
   metadata = {
     ssh_authorized_keys = file("~/.ssh/id_rsa.pub")
-    # user_data           = base64encode(file("${path.module}/scripts/entrypoint.sh"))
+    user_data           = base64encode(file("${path.module}/scripts/entrypoint.sh"))
   }
 
   display_name = "instance1"
