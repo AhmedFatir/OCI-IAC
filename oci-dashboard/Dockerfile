@@ -22,10 +22,9 @@ echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://
 apt-get update && apt-get -y install terraform
 
 # Set up SSH key and OCI CLI Autocomplete
-RUN ssh-keygen -t rsa -b 2048 -f ~/.ssh/id_rsa -N "" -q;\
-oci setup autocomplete > /dev/null 2>&1
+RUN ssh-keygen -t rsa -b 2048 -f ~/.ssh/id_rsa -N "" -q
 
-WORKDIR /root/resources
+WORKDIR /root/resources/terraform
 
 CMD ["tail", "-f", "/dev/null"]
 

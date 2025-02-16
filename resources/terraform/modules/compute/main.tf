@@ -5,10 +5,6 @@ data "oci_core_images" "images1" {
   sort_by                  = "TIMECREATED"
   sort_order               = "DESC"
   state                    = "AVAILABLE"
-  filter {
-    name   = "operating_system"
-    values = ["Canonical Ubuntu"]
-  }
 }
 
 data "oci_identity_availability_domains" "ads" {
