@@ -16,6 +16,3 @@ alias rmf='rm -rf'
 alias sshup='sh /root/resources/ssh.sh'
 alias tfrm='rm -rf .terraform .terraform.lock.hcl terraform.tfstate terraform.tfstate.backup'
 alias delcmp='oci iam compartment delete --compartment-id $(oci iam compartment list --compartment-id $TF_VAR_tenancy_ocid --name "DevOps" --raw-output --query "data[0].id") --force'
-
-
-[[ -e "/root/lib/oci_autocomplete.sh" ]] && source "/root/lib/oci_autocomplete.sh"

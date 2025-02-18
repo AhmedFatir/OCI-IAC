@@ -16,3 +16,9 @@ module "compute" {
   compartment_id   = oci_identity_compartment.DevOps.id
   public_subnet_id = module.network.public_subnet_id
 }
+
+module "oke" {
+  source         = "./modules/oke"
+  tenancy_ocid   = var.tenancy_ocid
+  compartment_id = oci_identity_compartment.DevOps.id
+}
