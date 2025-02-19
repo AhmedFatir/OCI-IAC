@@ -22,7 +22,6 @@ resource "oci_core_nat_gateway" "oke_nat_gw" {
   vcn_id         = oci_core_vcn.vcn_oke.id
 }
 
-# Service Gateway (for access to OCI services like container registry)
 resource "oci_core_service_gateway" "oke_service_gw" {
   compartment_id = var.compartment_id
   vcn_id         = oci_core_vcn.vcn_oke.id
@@ -34,7 +33,6 @@ resource "oci_core_service_gateway" "oke_service_gw" {
 }
 
 ###################################### Route Tables ######################################
-
 # Route table for public subnets
 resource "oci_core_route_table" "oke_public_rt" {
   compartment_id = var.compartment_id
@@ -63,15 +61,14 @@ resource "oci_core_route_table" "oke_private_rt" {
   }
 
   route_rules {
-    description      = "Route to OCI Services"
-    destination_type = "SERVICE_CIDR_BLOCK"
+    description       = "Route to OCI Services"
+    destination_type  = "SERVICE_CIDR_BLOCK"
     destination       = data.oci_core_services.all_oci_services.services[0].cidr_block
     network_entity_id = oci_core_service_gateway.oke_service_gw.id
   }
 }
 
 ###################################### Subnets ######################################
-
 # Public subnet for Load Balancers
 resource "oci_core_subnet" "oke_public_subnet2" {
   compartment_id             = var.compartment_id
@@ -109,7 +106,6 @@ resource "oci_core_subnet" "oke_private_subnet" {
 }
 
 ###################################### Security Lists ######################################
-
 # Security List for Load Balancers
 resource "oci_core_security_list" "oke_lb_sl" {
   compartment_id = var.compartment_id
@@ -124,8 +120,8 @@ resource "oci_core_security_list" "oke_api_endpoint_sl" {
   display_name   = "oke-api-endpoint-sl"
   # Egress rules
   egress_security_rules {
-    description = "Allow Kubernetes Control Plane to communicate with OKE"
-    destination       = data.oci_core_services.all_oci_services.services[0].cidr_block
+    description      = "Allow Kubernetes Control Plane to communicate with OKE"
+    destination      = data.oci_core_services.all_oci_services.services[0].cidr_block
     destination_type = "SERVICE_CIDR_BLOCK"
     protocol         = "6"
     stateless        = "false"
@@ -246,8 +242,8 @@ resource "oci_core_security_list" "oke_node_sl" {
     stateless = "false"
   }
   egress_security_rules {
-    description = "Allow nodes to communicate with OKE to ensure correct start-up and continued functioning"
-    destination       = data.oci_core_services.all_oci_services.services[0].cidr_block
+    description      = "Allow nodes to communicate with OKE to ensure correct start-up and continued functioning"
+    destination      = data.oci_core_services.all_oci_services.services[0].cidr_block
     destination_type = "SERVICE_CIDR_BLOCK"
     protocol         = "6"
     stateless        = "false"
@@ -313,108 +309,20 @@ resource "oci_core_security_list" "oke_node_sl" {
   }
 }
 
-###################################### OKE Cluster and Node Pool ######################################
+###################################### Output ######################################
 
-# Fetch all availability domains dynamically
-data "oci_identity_availability_domains" "ads" {
-  compartment_id = var.compartment_id
+output "vcn_id" {
+  value = oci_core_vcn.vcn_oke.id
 }
 
-# Fetch the latest Oracle Linux image for the node pool
-data "oci_core_images" "latest_oke_image" {
-  compartment_id   = var.compartment_id
-  operating_system = "Oracle Linux"
-  shape            = "VM.Standard.E3.Flex"
-  sort_by          = "TIMECREATED"
-  sort_order       = "DESC"
+output "endpoint_subnet_id" {
+  value = oci_core_subnet.oke_public_subnet1.id
 }
 
-# OKE Cluster
-resource "oci_containerengine_cluster" "DevOps_Cluster" {
-  compartment_id     = var.compartment_id
-  kubernetes_version = var.k8s_version
-  name               = "DevOps_Cluster"
-  type               = "ENHANCED_CLUSTER"
-  vcn_id             = oci_core_vcn.vcn_oke.id
-
-  cluster_pod_network_options {
-    cni_type = "OCI_VCN_IP_NATIVE"
-  }
-  endpoint_config {
-    is_public_ip_enabled = "true"
-    subnet_id            = oci_core_subnet.oke_public_subnet1.id
-  }
-  freeform_tags = {
-    "OKEclusterName" = "DevOps_Cluster"
-  }
-  options {
-    admission_controller_options {
-      is_pod_security_policy_enabled = "false"
-    }
-    persistent_volume_config {
-      freeform_tags = {
-        "OKEclusterName" = "DevOps_Cluster"
-      }
-    }
-    service_lb_config {
-      freeform_tags = {
-        "OKEclusterName" = "DevOps_Cluster"
-      }
-    }
-    service_lb_subnet_ids = [oci_core_subnet.oke_public_subnet2.id]
-  }
+output "lb_subnet_id" {
+  value = oci_core_subnet.oke_public_subnet2.id
 }
 
-# OKE Node Pool
-resource "oci_containerengine_node_pool" "oke_node_pool" {
-  cluster_id         = oci_containerengine_cluster.DevOps_Cluster.id
-  compartment_id     = var.compartment_id
-  name               = "oke_node_pool"
-  kubernetes_version = var.k8s_version
-  node_shape         = "VM.Standard.E3.Flex"
-  freeform_tags = {
-    "OKEnodePoolName" = "oke_node_pool"
-  }
-  initial_node_labels {
-    key   = "nodepool"
-    value = "oke_node_pool"
-  }
-
-  node_config_details {
-    size = "3"
-
-    freeform_tags = {
-      "OKEnodePoolName" = "oke_node_pool"
-    }
-    node_pool_pod_network_option_details {
-      cni_type = "OCI_VCN_IP_NATIVE"
-      pod_subnet_ids = [oci_core_subnet.oke_private_subnet.id]
-    }
-    placement_configs {
-      availability_domain = data.oci_identity_availability_domains.ads.availability_domains[0].name
-      subnet_id           = oci_core_subnet.oke_private_subnet.id
-    }
-    placement_configs {
-      availability_domain = data.oci_identity_availability_domains.ads.availability_domains[1].name
-      subnet_id           = oci_core_subnet.oke_private_subnet.id
-    }
-
-    # Availability Domain 3 is not working for the current moment
-
-    # placement_configs {
-    #   availability_domain = data.oci_identity_availability_domains.ads.availability_domains[2].name
-    #   subnet_id           = oci_core_subnet.oke_private_subnet.id
-    # }
-  }
-  node_eviction_node_pool_settings {
-    eviction_grace_duration = "PT1H"
-  }
-  node_shape_config {
-    memory_in_gbs = "16"
-    ocpus         = "1"
-  }
-  node_source_details {
-    source_type = "IMAGE"
-    image_id    = data.oci_core_images.latest_oke_image.images[0].id
-  }
+output "private_subnet_id" {
+  value = oci_core_subnet.oke_private_subnet.id
 }

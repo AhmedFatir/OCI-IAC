@@ -20,7 +20,7 @@ cd /home/ubuntu
 git clone https://github.com/AhmedFatir/jenkins.git
 git config --global --add safe.directory /jenkins
 cd jenkins
-docker compose up --build -d
+# docker compose up --build -d
 
 # Install Oh My Zsh
 sudo chsh -s $(which zsh)

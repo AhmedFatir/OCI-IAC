@@ -8,12 +8,13 @@ data "oci_core_images" "images1" {
 }
 
 data "oci_identity_availability_domains" "ads" {
-  compartment_id = var.tenancy_ocid
+  compartment_id = var.compartment_id
 }
 
-resource "oci_core_instance" "instance1" {
+resource "oci_core_instance" "jenkins_instance" {
   compartment_id      = var.compartment_id
   availability_domain = data.oci_identity_availability_domains.ads.availability_domains[0].name
+  display_name = "jenkins_instance"
   shape               = "VM.Standard.E3.Flex"
 
   shape_config {
@@ -28,7 +29,7 @@ resource "oci_core_instance" "instance1" {
 
   create_vnic_details {
     subnet_id        = var.public_subnet_id
-    display_name     = "instance1_vnic"
+    display_name     = "jenkins_instance_vnic"
     assign_public_ip = true
   }
 
@@ -36,6 +37,4 @@ resource "oci_core_instance" "instance1" {
     ssh_authorized_keys = file("~/.ssh/id_rsa.pub")
     user_data           = base64encode(file("${path.module}/scripts/entrypoint.sh"))
   }
-
-  display_name = "instance1"
 }

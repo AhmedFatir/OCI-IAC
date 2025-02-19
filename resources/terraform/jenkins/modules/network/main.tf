@@ -1,23 +1,23 @@
-resource "oci_core_vcn" "vcn1" {
+resource "oci_core_vcn" "devops_vcn" {
   compartment_id = var.compartment_id
   cidr_block     = "10.0.0.0/16"
-  display_name   = "vcn1"
-  dns_label      = "vcn1"
+  display_name   = "devops-vcn"
+  dns_label      = "devopsvcn"
 }
 
-resource "oci_core_subnet" "public_subnet1" {
+resource "oci_core_subnet" "public_subnet" {
   compartment_id    = var.compartment_id
-  vcn_id            = oci_core_vcn.vcn1.id
+  vcn_id            = oci_core_vcn.devops_vcn.id
   cidr_block        = "10.0.1.0/24"
-  display_name      = "public-subnet1"
-  dns_label         = "pubsubnet1"
+  display_name      = "public-subnet"
+  dns_label         = "pubsubnet"
   security_list_ids = [oci_core_security_list.public_sl.id]
   route_table_id    = oci_core_route_table.public_rt.id
 }
 
 resource "oci_core_security_list" "public_sl" {
   compartment_id = var.compartment_id
-  vcn_id         = oci_core_vcn.vcn1.id
+  vcn_id         = oci_core_vcn.devops_vcn.id
   display_name   = "public-sl"
 
   egress_security_rules {
@@ -53,7 +53,7 @@ resource "oci_core_security_list" "public_sl" {
 
 resource "oci_core_route_table" "public_rt" {
   compartment_id = var.compartment_id
-  vcn_id         = oci_core_vcn.vcn1.id
+  vcn_id         = oci_core_vcn.devops_vcn.id
   display_name   = "public-rt"
   route_rules {
     network_entity_id = oci_core_internet_gateway.igw.id
@@ -63,11 +63,11 @@ resource "oci_core_route_table" "public_rt" {
 
 resource "oci_core_internet_gateway" "igw" {
   compartment_id = var.compartment_id
-  vcn_id         = oci_core_vcn.vcn1.id
+  vcn_id         = oci_core_vcn.devops_vcn.id
   display_name   = "internet-gateway"
   enabled        = true
 }
 
 output "public_subnet_id" {
-  value = oci_core_subnet.public_subnet1.id
+  value = oci_core_subnet.public_subnet.id
 }
