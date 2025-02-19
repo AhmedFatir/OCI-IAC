@@ -15,3 +15,13 @@ variable "compartment_id" {
     error_message = "You must provide a valid OCID for the compartment"
   }
 }
+
+variable "k8s_version" {
+  type        = string
+  description = "Kubernetes version"
+  default     = "v1.31.1"
+  validation {
+    condition     = length(var.k8s_version) > 0
+    error_message = "You must provide a valid Kubernetes version"
+  }
+}

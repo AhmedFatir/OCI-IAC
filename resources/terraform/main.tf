@@ -19,6 +19,7 @@ module "compute" {
 
 module "oke" {
   source         = "./modules/oke"
+  k8s_version    = "v1.31.1"
   tenancy_ocid   = var.tenancy_ocid
   compartment_id = oci_identity_compartment.DevOps.id
 }

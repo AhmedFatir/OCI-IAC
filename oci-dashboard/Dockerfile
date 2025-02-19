@@ -21,6 +21,12 @@ wget -O- https://apt.releases.hashicorp.com/gpg | gpg --dearmor | tee /usr/share
 echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/hashicorp.list; \
 apt-get update && apt-get -y install terraform
 
+# Install kubectl
+RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"; \
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"; \
+echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check; \
+install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+
 # Set up SSH key and OCI CLI Autocomplete
 RUN ssh-keygen -t rsa -b 2048 -f ~/.ssh/id_rsa -N "" -q
 
