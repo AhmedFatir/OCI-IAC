@@ -18,15 +18,15 @@ resource "oci_core_instance" "jenkins_instance" {
   shape               = "VM.Standard.E3.Flex"
 
   shape_config {
-    memory_in_gbs = 16
-    ocpus         = 1
+    memory_in_gbs = "16"
+    ocpus         = "1"
   }
 
   source_details {
     source_type = "image"
     source_id   = data.oci_core_images.images1.images[0].id
   }
-
+  is_pv_encryption_in_transit_enabled = "true"
   create_vnic_details {
     subnet_id        = var.public_subnet_id
     display_name     = "jenkins_instance_vnic"
@@ -35,6 +35,6 @@ resource "oci_core_instance" "jenkins_instance" {
 
   metadata = {
     ssh_authorized_keys = file("~/.ssh/id_rsa.pub")
-    user_data           = base64encode(file("${path.module}/scripts/entrypoint.sh"))
+    user_data           = filebase64("${path.module}/scripts/entrypoint.sh")
   }
 }

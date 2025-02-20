@@ -1,5 +1,6 @@
 export ZSH="$HOME/.oh-my-zsh"
 export PATH="$PATH:/root/bin"
+export KUBECONFIG="$HOME/.kube/config"
 
 ZSH_THEME="robbyrussell"
 
@@ -14,7 +15,8 @@ source $ZSH/oh-my-zsh.sh
 
 alias zshup='source /root/.zshrc'
 alias rmf='rm -rf'
-alias sshup='sh /root/resources/ssh.sh'
+alias kg='kubectl get'
+alias sshup='sh /root/resources/scripts/ssh.sh'
 alias tfrm='rm -rf .terraform .terraform.lock.hcl terraform.tfstate terraform.tfstate.backup'
 alias deldev='oci iam compartment delete --compartment-id $(oci iam compartment list --compartment-id $TF_VAR_tenancy_ocid --name "DevOps" --raw-output --query "data[0].id") --force'
 alias deloke='oci iam compartment delete --compartment-id $(oci iam compartment list --compartment-id $TF_VAR_tenancy_ocid --name "OKE" --raw-output --query "data[0].id") --force'

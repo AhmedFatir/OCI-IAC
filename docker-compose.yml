@@ -17,11 +17,11 @@ services:
       context: ./oci-dashboard
       dockerfile: Dockerfile
     volumes:
-      - ./jenkins:/root/jenkins
+      - ./oci-dashboard/resources:/root/resources
+      - ~/oci-credentials:/root/.oci
       - ~/.zsh_history:/root/.zsh_history
       - ./oci-dashboard/zshrc:/root/.zshrc
-      - ./resources:/root/resources
-      - ~/oci-credentials:/root/.oci
+      - ~/.ssh:/root/.ssh
     env_file:
       - .env
     networks:

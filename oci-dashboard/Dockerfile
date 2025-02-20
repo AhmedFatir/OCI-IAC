@@ -13,7 +13,7 @@ RUN chsh -s $(which zsh); \
 
 # Install OCI CLI
 RUN wget https://raw.githubusercontent.com/oracle/oci-cli/master/scripts/install/install.sh; \
-chmod +x /install.sh && ./install.sh --accept-all-defaults
+chmod +x ./install.sh && ./install.sh --accept-all-defaults
 
 # Install Terraform
 RUN apt-get update && apt-get -y install gnupg software-properties-common; \
@@ -27,10 +27,15 @@ curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stabl
 echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check; \
 install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
 
-# Set up SSH key and OCI CLI Autocomplete
-RUN ssh-keygen -t rsa -b 2048 -f ~/.ssh/id_rsa -N "" -q
+# RUN ssh-keygen -t rsa -b 2048 -f ~/.ssh/id_rsa -N "" -q
 
-WORKDIR /root/resources/terraform
+COPY ./resources /root/resources
+WORKDIR /root/resources
+
+COPY ./entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+ENTRYPOINT [ "/entrypoint.sh" ]
 
 CMD ["tail", "-f", "/dev/null"]
 
