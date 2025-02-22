@@ -1,9 +1,10 @@
 #!/bin/bash
 
-(cd /root/resources/terraform/oke_cluster && terraform init)
-(cd /root/resources/terraform/oke_cluster && terraform apply -auto-approve)
 (cd /root/resources/terraform/jenkins && terraform init)
 (cd /root/resources/terraform/jenkins && terraform apply -auto-approve)
+
+(cd /root/resources/terraform/oke_cluster && terraform init)
+(cd /root/resources/terraform/oke_cluster && terraform apply -auto-approve)
 
 COMPARTMENT_NAME="DevOps"
 INSTANCE_NAME="jenkins_instance"
@@ -49,4 +50,5 @@ echo "Install kubectl and oci-cli..."
 ssh $SSHCMD ubuntu@$IP "bash /home/ubuntu/conf.sh" > /dev/null 2>&1
 ssh $SSHCMD ubuntu@$IP "rm -f conf.sh kubectl kubectl.sha256 install.sh" > /dev/null 2>&1
 
+echo "All done. You can now access the Jenkins instance at http://$IP:8080"
 exec "$@"
