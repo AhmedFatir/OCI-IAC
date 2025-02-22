@@ -5,15 +5,19 @@
 (cd /root/resources/terraform/jenkins && terraform init)
 (cd /root/resources/terraform/jenkins && terraform apply -auto-approve)
 
+COMPARTMENT_NAME="DevOps"
+INSTANCE_NAME="jenkins_instance"
+CLUSTER_NAME="DevOps_Cluster"
+
 SSHCMD="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
 
 echo "Get the Compartment OCID..."
 COMPARTMENT_OCID=$(/root/bin/oci iam compartment list --compartment-id $TF_VAR_tenancy_ocid \
---name "OKE" --raw-output --query "data[0].id")
+--name $COMPARTMENT_NAME --raw-output --query "data[0].id")
 
 echo "Get the Cluster OCID..."
 CLUSTER_OCID=$(/root/bin/oci ce cluster list --compartment-id $COMPARTMENT_OCID \
---query "data[?\"name\"=='DevOps_Cluster'].id | [0]" --raw-output)
+--query "data[?\"name\"=='$CLUSTER_NAME'].id | [0]" --raw-output)
 
 echo "Create the kubeconfig file..."
 mkdir -p $HOME/.kube
@@ -23,7 +27,7 @@ mkdir -p $HOME/.kube
 
 echo "Get the Instance OCID..."
 INSTANCE_OCID=$(/root/bin/oci compute instance list --compartment-id $COMPARTMENT_OCID \
---query "data[?\"display-name\"=='jenkins_instance'].id | [0]" --raw-output)
+--query "data[?\"display-name\"=='$INSTANCE_NAME'].id | [0]" --raw-output)
 
 echo "Get the Public IP of the Instance..."
 IP=$(/root/bin/oci compute instance list-vnics --instance-id $INSTANCE_OCID | jq -r '.data[0]."public-ip"')
@@ -39,7 +43,7 @@ echo "Change the key file path in the config file..."
 ssh $SSHCMD ubuntu@$IP "sed -i '6 s@root@home/ubuntu@' /home/ubuntu/.oci/config" > /dev/null 2>&1
 
 echo "Mount kubectl and oci-cli script..."
-scp $SSHCMD /root/resources/terraform/scripts/conf.sh ubuntu@$IP:/home/ubuntu/conf.sh > /dev/null 2>&1
+scp $SSHCMD /root/resources/scripts/conf.sh ubuntu@$IP:/home/ubuntu/conf.sh > /dev/null 2>&1
 
 echo "Install kubectl and oci-cli..."
 ssh $SSHCMD ubuntu@$IP "bash /home/ubuntu/conf.sh" > /dev/null 2>&1
