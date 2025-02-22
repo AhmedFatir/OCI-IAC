@@ -16,3 +16,11 @@ echo "Delete the compartments..."
 /root/bin/oci iam compartment delete \
 --compartment-id $(/root/bin/oci iam compartment list --compartment-id $TF_VAR_tenancy_ocid \
 --name "OKE" --raw-output --query "data[0].id") --force
+
+sleep 5
+echo "Waiting for the compartments to be deleted..."
+while [ "$(/root/bin/oci iam compartment list --compartment-id $TF_VAR_tenancy_ocid --query 'data[?name==`DevOps`]."lifecycle-state"' --raw-output | jq -r '.[0]')" == "DELETING" ] \
+|| [ "$(/root/bin/oci iam compartment list --compartment-id $TF_VAR_tenancy_ocid --query 'data[?name==`OKE`]."lifecycle-state"' --raw-output | jq -r '.[0]')" == "DELETING" ]; do
+  sleep 10
+done
+sleep 5

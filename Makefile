@@ -27,4 +27,4 @@ re: clean all
 oci:
 	@docker-compose exec -it oci zsh
 
-.PHONY: all up down stop start clean re prune
+.PHONY: all up down stop start clean re prune oci
