@@ -6,18 +6,16 @@
 (cd /root/resources/terraform/oke_cluster && terraform init)
 (cd /root/resources/terraform/oke_cluster && terraform apply -auto-approve)
 
-COMPARTMENT_NAME="DevOps"
-INSTANCE_NAME="jenkins_instance"
+echo "---------------------OKE---------------------"
+OKE_COMPARTMENT_NAME="OKE"
 CLUSTER_NAME="DevOps_Cluster"
 
-SSHCMD="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
-
-echo "Get the Compartment OCID..."
-COMPARTMENT_OCID=$(/root/bin/oci iam compartment list --compartment-id $TF_VAR_tenancy_ocid \
---name $COMPARTMENT_NAME --raw-output --query "data[0].id")
+echo "Get the OKE Compartment OCID..."
+OKE_COMPARTMENT_OCID=$(/root/bin/oci iam compartment list --compartment-id $TF_VAR_tenancy_ocid \
+--name $OKE_COMPARTMENT_NAME --raw-output --query "data[0].id")
 
 echo "Get the Cluster OCID..."
-CLUSTER_OCID=$(/root/bin/oci ce cluster list --compartment-id $COMPARTMENT_OCID \
+CLUSTER_OCID=$(/root/bin/oci ce cluster list --compartment-id $OKE_COMPARTMENT_OCID \
 --query "data[?\"name\"=='$CLUSTER_NAME'].id | [0]" --raw-output)
 
 echo "Create the kubeconfig file..."
@@ -25,13 +23,26 @@ mkdir -p $HOME/.kube
 /root/bin/oci ce cluster create-kubeconfig \
 --cluster-id $CLUSTER_OCID --file $HOME/.kube/config \
 --region $TF_VAR_region --token-version 2.0.0 --kube-endpoint PUBLIC_ENDPOINT > /dev/null 2>&1
+echo "---------------------OKE---------------------"
+
+echo "---------------------DEV---------------------"
+DEV_OPS_COMPARTMENT_NAME="DevOps"
+INSTANCE_NAME="jenkins_instance"
+
+echo "Get the DevOps Compartment OCID..."
+DEV_OPS_COMPARTMENT_OCID=$(/root/bin/oci iam compartment list --compartment-id $TF_VAR_tenancy_ocid \
+--name $DEV_OPS_COMPARTMENT_NAME --raw-output --query "data[0].id")
 
 echo "Get the Instance OCID..."
-INSTANCE_OCID=$(/root/bin/oci compute instance list --compartment-id $COMPARTMENT_OCID \
+INSTANCE_OCID=$(/root/bin/oci compute instance list --compartment-id $DEV_OPS_COMPARTMENT_OCID \
 --query "data[?\"display-name\"=='$INSTANCE_NAME'].id | [0]" --raw-output)
 
 echo "Get the Public IP of the Instance..."
 IP=$(/root/bin/oci compute instance list-vnics --instance-id $INSTANCE_OCID | jq -r '.data[0]."public-ip"')
+echo "---------------------DEV---------------------"
+
+echo "---------------------CNF---------------------"
+SSHCMD="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
 
 echo "Create the .kube directory..."
 ssh $SSHCMD ubuntu@$IP "mkdir .kube" > /dev/null 2>&1
@@ -49,6 +60,7 @@ scp $SSHCMD /root/resources/scripts/conf.sh ubuntu@$IP:/home/ubuntu/conf.sh > /d
 echo "Install kubectl and oci-cli..."
 ssh $SSHCMD ubuntu@$IP "bash /home/ubuntu/conf.sh" > /dev/null 2>&1
 ssh $SSHCMD ubuntu@$IP "rm -f conf.sh kubectl kubectl.sha256 install.sh" > /dev/null 2>&1
+echo "---------------------CNF---------------------"
 
 echo "All done. You can now access the Jenkins instance at http://$IP:8080"
 exec "$@"
