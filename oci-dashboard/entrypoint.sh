@@ -1,8 +1,8 @@
 #!/bin/bash
 
+echo "---------------------TF---------------------"
 (cd /root/resources/terraform/jenkins && terraform init)
 (cd /root/resources/terraform/jenkins && terraform apply -auto-approve)
-
 (cd /root/resources/terraform/oke_cluster && terraform init)
 (cd /root/resources/terraform/oke_cluster && terraform apply -auto-approve)
 
@@ -23,7 +23,6 @@ mkdir -p $HOME/.kube
 /root/bin/oci ce cluster create-kubeconfig \
 --cluster-id $CLUSTER_OCID --file $HOME/.kube/config \
 --region $TF_VAR_region --token-version 2.0.0 --kube-endpoint PUBLIC_ENDPOINT > /dev/null 2>&1
-echo "---------------------OKE---------------------"
 
 echo "---------------------DEV---------------------"
 DEV_OPS_COMPARTMENT_NAME="DevOps"
@@ -39,7 +38,6 @@ INSTANCE_OCID=$(/root/bin/oci compute instance list --compartment-id $DEV_OPS_CO
 
 echo "Get the Public IP of the Instance..."
 IP=$(/root/bin/oci compute instance list-vnics --instance-id $INSTANCE_OCID | jq -r '.data[0]."public-ip"')
-echo "---------------------DEV---------------------"
 
 echo "---------------------CNF---------------------"
 SSHCMD="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
@@ -60,7 +58,6 @@ scp $SSHCMD /root/resources/scripts/conf.sh ubuntu@$IP:/home/ubuntu/conf.sh > /d
 echo "Install kubectl and oci-cli..."
 ssh $SSHCMD ubuntu@$IP "bash /home/ubuntu/conf.sh" > /dev/null 2>&1
 ssh $SSHCMD ubuntu@$IP "rm -f conf.sh kubectl kubectl.sha256 install.sh" > /dev/null 2>&1
-echo "---------------------CNF---------------------"
 
 echo "All done. You can now access the Jenkins instance at http://$IP:8080"
 exec "$@"
