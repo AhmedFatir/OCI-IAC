@@ -59,5 +59,17 @@ echo "Install kubectl and oci-cli..."
 ssh $SSHCMD ubuntu@$IP "bash /home/ubuntu/conf.sh" > /dev/null 2>&1
 ssh $SSHCMD ubuntu@$IP "rm -f conf.sh kubectl kubectl.sha256 install.sh" > /dev/null 2>&1
 
+echo "Mount config files for Jenkins..."
+ssh $SSHCMD ubuntu@$IP "mkdir -p /home/ubuntu/jenkins/conf" > /dev/null 2>&1
+scp $SSHCMD /root/.kube/config ubuntu@$IP:/home/ubuntu/jenkins/conf/k8s_config > /dev/null 2>&1
+scp $SSHCMD /root/.oci/config ubuntu@$IP:/home/ubuntu/jenkins/conf/oci_config > /dev/null 2>&1
+scp $SSHCMD /root/.oci/oci_api_key.pem ubuntu@$IP:/home/ubuntu/jenkins/conf/oci_api_key.pem > /dev/null 2>&1
+ssh $SSHCMD ubuntu@$IP "sed -i '6 s@root@var/jenkins_home@' /home/ubuntu/jenkins/conf/oci_config" > /dev/null 2>&1
+
+echo "GITHUB_TOKEN=$GITHUB_TOKEN" > .env
+scp $SSHCMD .env ubuntu@$IP:/home/ubuntu/jenkins/.env > /dev/null 2>&1
+rm -f .env
+ssh $SSHCMD ubuntu@$IP "cd /home/ubuntu/jenkins && docker compose up --build" > /dev/null 2>&1
+
 echo "All done. You can now access the Jenkins instance at http://$IP:8080"
 exec "$@"
