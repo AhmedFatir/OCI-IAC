@@ -77,17 +77,6 @@ resource "oci_containerengine_node_pool" "oke_node_pool" {
       availability_domain = data.oci_identity_availability_domains.ads.availability_domains[0].name
       subnet_id           = var.private_subnet_id
     }
-    placement_configs {
-      availability_domain = data.oci_identity_availability_domains.ads.availability_domains[1].name
-      subnet_id           = var.private_subnet_id
-    }
-
-    # Availability Domain 3 is not working for the current moment
-
-    # placement_configs {
-    #   availability_domain = data.oci_identity_availability_domains.ads.availability_domains[2].name
-    #   subnet_id           = var.private_subnet_id
-    # }
   }
   node_eviction_node_pool_settings {
     eviction_grace_duration = "PT1H"
