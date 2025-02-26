@@ -69,7 +69,7 @@ ssh $SSHCMD ubuntu@$IP "sed -i '6 s@root@var/jenkins_home@' /home/ubuntu/jenkins
 echo "GITHUB_TOKEN=$GITHUB_TOKEN" > .env
 scp $SSHCMD .env ubuntu@$IP:/home/ubuntu/jenkins/.env > /dev/null 2>&1
 rm -f .env
-ssh $SSHCMD ubuntu@$IP "cd /home/ubuntu/jenkins && docker compose up --build" > /dev/null 2>&1
+ssh $SSHCMD ubuntu@$IP "(cd /home/ubuntu/jenkins && make)" > /dev/null 2>&1
 
 echo "All done. You can now access the Jenkins instance at http://$IP:8080"
 exec "$@"

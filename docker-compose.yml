@@ -18,6 +18,7 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./oci-dashboard/resources:/root/resources
+      - ./oci-dashboard/entrypoint.sh:/root/entrypoint.sh
       - ~/oci-credentials:/root/.oci
       - ~/.zsh_history:/root/.zsh_history
       - ./oci-dashboard/zshrc:/root/.zshrc
