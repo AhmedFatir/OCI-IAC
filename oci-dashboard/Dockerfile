@@ -32,10 +32,10 @@ install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
 COPY ./resources /root/resources
 WORKDIR /root/resources
 
-COPY ./entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+COPY ./entrypoint.sh /root/entrypoint.sh
+RUN chmod +x /root/entrypoint.sh
 
-ENTRYPOINT [ "/entrypoint.sh" ]
+ENTRYPOINT ["bash", "/root/entrypoint.sh"]
 
 CMD ["tail", "-f", "/dev/null"]
 

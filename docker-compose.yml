@@ -19,10 +19,12 @@ services:
     volumes:
       - ./oci-dashboard/resources:/root/resources
       - ./oci-dashboard/entrypoint.sh:/root/entrypoint.sh
-      - ~/oci-credentials:/root/.oci
       - ~/.zsh_history:/root/.zsh_history
       - ./oci-dashboard/zshrc:/root/.zshrc
-      - ~/.ssh:/root/.ssh
+      
+      # Mount the OCI credentials and SSH keys
+      - ~/oci-credentials:/root/.oci:ro
+      - ~/.ssh:/root/.ssh:ro
     env_file:
       - .env
     networks:

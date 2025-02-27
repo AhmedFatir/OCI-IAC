@@ -12,7 +12,7 @@ start:
 	docker-compose start
 
 clean:
-	@docker-compose exec -it oci bash /root/resources/scripts/cleanup.sh
+	@docker-compose exec -it oci bash /root/resources/scripts/cleanup.sh || true
 	@docker stop $$(docker ps -qa) || true
 	@docker rm -f $$(docker ps -qa) || true
 	@docker rmi -f $$(docker images -qa) || true

@@ -1,5 +1,13 @@
 #!/bin/bash
 
+echo "Delete the Kubernetes resources..."
+kubectl delete deployments.apps nginx wordpress
+kubectl delete statefulsets.apps mariadb
+kubectl delete services mariadb nginx wordpress
+kubectl delete persistentvolumeclaims mariadb-pvc nginx-certificates-pvc wordpress-pvc
+kubectl delete secrets mariadb-secret wordpress-secret
+kubectl delete configmaps nginx-config
+
 echo "Destroy the resources..."
 (cd /root/resources/terraform/jenkins && terraform destroy -auto-approve)
 (cd /root/resources/terraform/oke_cluster && terraform destroy -auto-approve)
