@@ -21,8 +21,7 @@ services:
       - ./oci-dashboard/entrypoint.sh:/root/entrypoint.sh
       - ~/.zsh_history:/root/.zsh_history
       - ./oci-dashboard/zshrc:/root/.zshrc
-      
-      # Mount the OCI credentials and SSH keys
+      # - path/to/your/credentials/:/root/.oci:ro #change this to your OCI credentials path and make sure to have the correct permissions 600
       - ~/oci-credentials:/root/.oci:ro
       - ~/.ssh:/root/.ssh:ro
     env_file:

@@ -38,5 +38,3 @@ RUN chmod +x /root/entrypoint.sh
 ENTRYPOINT ["bash", "/root/entrypoint.sh"]
 
 CMD ["tail", "-f", "/dev/null"]
-
-# oci setup repair-file-permissions --file /root/.oci/config && oci setup repair-file-permissions --file /root/resources/afatir.pem
