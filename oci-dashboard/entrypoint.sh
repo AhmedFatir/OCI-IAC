@@ -7,10 +7,8 @@ error_handler() {
 }
 
 echo "---------------------TF---------------------"
-(cd /root/resources/terraform/jenkins && terraform init) || error_handler "Failed to initialize Jenkins Terraform"
-(cd /root/resources/terraform/jenkins && terraform apply -auto-approve) || error_handler "Failed to apply Jenkins Terraform"
-(cd /root/resources/terraform/oke_cluster && terraform init) || error_handler "Failed to initialize OKE Terraform"
-(cd /root/resources/terraform/oke_cluster && terraform apply -auto-approve) || error_handler "Failed to apply OKE Terraform"
+(cd /root/resources/terraform && terraform init) || error_handler "Failed to initialize Terraform"
+(cd /root/resources/terraform && terraform apply -auto-approve) || error_handler "Failed to apply Terraform"
 
 echo "---------------------OKE---------------------"
 OKE_COMPARTMENT_NAME="OKE"
